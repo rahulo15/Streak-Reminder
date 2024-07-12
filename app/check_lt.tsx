@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { lt } from "./types";
 
-export default function Check_lt() {
+const Check_lt = ({ user }: { user: string }) => {
   const [data, setData] = useState<lt | null>(null);
 
   const check = (time: number) => {
@@ -10,19 +10,32 @@ export default function Check_lt() {
 
     const day = date.getDate();
     const today = new Date().getDate();
-    return day == today;
+    return day === today;
   };
 
   useEffect(() => {
-    fetch("https://leetcode-stats-api.herokuapp.com/rahul_o15")
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
-      });
-  }, []);
+    const fetchDetails = async () => {
+      try {
+        const res = await fetch(`https://leetcode-stats-api.herokuapp.com/${user}`);
 
-  if (!data || data === null || data.status == "error")
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await res.json();
+        setData(data);
+      } catch (error) {
+        console.log("Error:", error);
+      }
+    };
+
+    fetchDetails();
+  }, [user]);
+
+  if (!data || data === null || data.status === "error") {
     return <div className="p-3 text-center">Unable to fetch!</div>;
+  }
+
   const time = Number(Object.keys(data.submissionCalendar).pop());
 
   return (
@@ -31,3 +44,5 @@ export default function Check_lt() {
     </div>
   );
 }
+
+export default Check_lt;

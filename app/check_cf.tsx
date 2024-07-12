@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { cf_check } from "./types";
 
-export default function Check_cf() {
+const Check_cf = ({ user }: { user: string }) => {
   const [data, setData] = useState<cf_check | null>(null);
 
   const check = (time: number) => {
@@ -14,14 +14,24 @@ export default function Check_cf() {
   };
 
   useEffect(() => {
-    fetch(
-      "https://codeforces.com/api/user.status?handle=rahul_o15&from=1&count=1"
+    const fetchDetails = async () => {
+      try {
+        const res = await fetch(
+      `https://codeforces.com/api/user.status?handle=${user}&from=1&count=1`
     )
-      .then((res) => res.json())
-      .then((data) => {
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await res.json();
         setData(data);
-      });
-  }, []);
+      } catch (error) {
+        console.log("Error:", error);
+      }
+    };
+
+    fetchDetails();
+  }, [user]);
 
   if (!data || data === null)
     return <div className="p-3 text-center">Unable to fetch!</div>;
@@ -33,3 +43,5 @@ export default function Check_cf() {
     </div>
   );
 }
+
+export default Check_cf;

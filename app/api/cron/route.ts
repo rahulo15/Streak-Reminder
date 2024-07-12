@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
 const chatId = process.env.TELEGRAM_CHAT_ID;
+const user = process.env.USER;
 
 const check = (time: number) => {
   const timestampInMilliseconds = time * 1000;
@@ -15,14 +16,15 @@ const check = (time: number) => {
 };
 
 export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const leetcode_data: lt = await fetch(
-    "https://leetcode-stats-api.herokuapp.com/rahul_o15",
+    `https://leetcode-stats-api.herokuapp.com/${user}`,
     { cache: "no-store" }
   ).then((res) => res.json());
 
   const codeforces_data: cf_check = await fetch(
-    "https://codeforces.com/api/user.status?handle=rahul_o15&from=1&count=1",
+    `https://codeforces.com/api/user.status?handle=${user}&from=1&count=1`,
     { cache: "no-store" }
   ).then((res) => res.json());
 
