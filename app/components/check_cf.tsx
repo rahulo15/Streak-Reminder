@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { cf_check } from "./types";
+import { cf_check } from "../types";
 
 export default function Check_cf() {
   const [data, setData] = useState<cf_check | null>(null);

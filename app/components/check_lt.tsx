@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { lt } from "./types";
+import { lt } from "../types";
 
 export default function Check_lt() {
   const [data, setData] = useState<lt | null>(null);
