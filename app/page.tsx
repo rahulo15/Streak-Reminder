@@ -2,7 +2,7 @@
 
 import React from "react";
 import Leetcode from "./components/leetcode";
-import Codeforces from "./components/leetcode";
+import Codeforces from "./components/codeforces";
 
 export default function Page() {
   const [dark, setDark] = React.useState(false);
@@ -35,10 +35,13 @@ export default function Page() {
     <div className="w-screen h-screen bg-gradient-to-b from-blue-600 to-blue-100 dark:from-gray-900 dark:to-gray-800">
       <div className="absolute top-4 right-4">
         <button
-          className="px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow"
+          className="px-2 md:px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow"
           onClick={toggleDark}
         >
-          {dark ? "🌙 Dark" : "☀️ Light"}
+          <span className="md:hidden">{dark ? "🌙" : "☀️"}</span>
+          <span className="hidden md:inline">
+            {dark ? "🌙 Dark" : "☀️ Light"}
+          </span>
         </button>
       </div>
       <h1 className="flex items-center justify-center text-3xl md:text-5xl h-1/6 font-serif dark:text-gray-100">
