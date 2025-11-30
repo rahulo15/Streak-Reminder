@@ -9,9 +9,9 @@ export const metadata: Metadata = {
   title: "Streak-Reminder",
   description: "Helps maintain DSA-CP streak",
   icons: {
-    icon: "/icon.svg?v=1", // favicon
-    shortcut: "/icon.svg?v=1", // shortcut icon
-    apple: "/icon.svg?v=1", // for Apple devices
+    icon: "/icon.svg", // favicon
+    shortcut: "/icon.svg", // shortcut icon
+    apple: "/icon.svg", // for Apple devices
   },
 };
 
