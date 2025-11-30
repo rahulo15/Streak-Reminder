@@ -1,18 +1,18 @@
 export type lt = {
   status: string;
   message: string;
-  totalSolved: Number;
-  totalQuestions: Number;
-  easySolved: Number;
-  totalEasy: Number;
-  mediumSolved: Number;
-  totalMedium: Number;
-  hardSolved: Number;
-  totalHard: Number;
-  acceptanceRate: Number;
-  ranking: Number;
-  contributionPoints: Number;
-  reputation: Number;
+  totalSolved: number;
+  totalQuestions: number;
+  easySolved: number;
+  totalEasy: number;
+  mediumSolved: number;
+  totalMedium: number;
+  hardSolved: number;
+  totalHard: number;
+  acceptanceRate: number;
+  ranking: number;
+  contributionPoints: number;
+  reputation: number;
   submissionCalendar: Object;
 };
 
@@ -20,16 +20,16 @@ export type cf = {
   status: string;
   result: [
     {
-      contribution: Number;
-      lastOnlineTimeSeconds: Number;
-      rating: Number;
-      friendOfCount: Number;
+      contribution: number;
+      lastOnlineTimeSeconds: number;
+      rating: number;
+      friendOfCount: number;
       titlePhoto: string;
       rank: string;
       handle: string;
-      maxRating: Number;
+      maxRating: number;
       avatar: string;
-      registrationTimeSeconds: Number;
+      registrationTimeSeconds: number;
       maxRank: string;
     }
   ];
@@ -39,18 +39,18 @@ export type cf_check = {
   status: string;
   result: [
     {
-      id: Number;
-      contestId: Number;
-      creationTimeSeconds: Number;
-      relativeTimeSeconds: Number;
+      id: number;
+      contestId: number;
+      creationTimeSeconds: number;
+      relativeTimeSeconds: number;
       problem: Object;
       author: Object;
       programmingLanguage: string;
       verdict: string;
       testset: string;
-      passedTestCount: Number;
-      timeConsumedMillis: Number;
-      memoryConsumedBytes: Number;
+      passedTestCount: number;
+      timeConsumedMillis: number;
+      memoryConsumedBytes: number;
     }
   ];
 };
