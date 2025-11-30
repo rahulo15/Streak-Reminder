@@ -1,0 +1,30 @@
+<svg width="200" height="200" viewBox="0 0 200 200"
+     xmlns="http://www.w3.org/2000/svg" fill="none">
+
+  <defs>
+    <linearGradient id="flameGradient" x1="100" y1="25" x2="100" y2="185" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFD54F"/>
+      <stop offset="50%" stop-color="#FB8C00"/>
+      <stop offset="100%" stop-color="#F44336"/>
+    </linearGradient>
+    <linearGradient id="innerFlameGradient" x1="100" y1="70" x2="100" y2="145" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFF176"/>
+      <stop offset="100%" stop-color="#FFB74D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer flame with gradient -->
+  <path d="M100 25
+           C135 65 165 105 150 145
+           C135 185 65 185 50 145
+           C35 105 65 65 100 25Z"
+        fill="url(#flameGradient)"/>
+
+  <!-- Inner flame highlight with gradient -->
+  <path d="M100 70
+           C120 95 135 120 125 145
+           C115 170 85 170 75 145
+           C65 120 80 95 100 70Z"
+        fill="url(#innerFlameGradient)"/>
+
+</svg>
