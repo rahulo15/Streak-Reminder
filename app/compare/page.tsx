@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Codeforces from "../components/codeforces";
-import Leetcode from "../components/leetcode";
+import Compare from "../components/comparetab";
 
 function Page() {
   const [selectedPlatform, setSelectedPlatform] = useState("");
@@ -74,7 +73,7 @@ function Page() {
         </button>
       </div>
 
-      <h1 className="text-center text-2xl md:text-4xl font-serif dark:text-gray-100 opacity-40">
+      <h1 className="text-center text-2xl md:text-4xl pt-4 font-serif dark:text-gray-100 opacity-40">
         Streak-Reminder
       </h1>
 
@@ -152,27 +151,12 @@ function Page() {
           </button>
         </div>
       </div>
-
-      {submittedIds && selectedPlatform === "leetcode" && (
-        <div className="flex flex-col md:flex-row w-full items-start justify-center gap-8 pt-8 pb-8">
-          <div className="w-full">
-            <Leetcode userId={submittedIds.id1} showCheck={false} />
-          </div>
-          <div className="w-full">
-            <Leetcode userId={submittedIds.id2} showCheck={false} />
-          </div>
-        </div>
-      )}
-
-      {submittedIds && selectedPlatform === "codeforces" && (
-        <div className="flex flex-col md:flex-row w-full items-start justify-center gap-8 pt-8 pb-8">
-          <div className="w-full">
-            <Codeforces userId={submittedIds.id1} showCheck={false} />
-          </div>
-          <div className="w-full">
-            <Codeforces userId={submittedIds.id2} showCheck={false} />
-          </div>
-        </div>
+      {submittedIds && (
+        <Compare
+          id1={submittedIds.id1}
+          id2={submittedIds.id2}
+          selectedPlatform={selectedPlatform}
+        />
       )}
     </div>
   );
