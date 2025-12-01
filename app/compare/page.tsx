@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Compare from "../components/comparetab";
 
 function Page() {
-  const [selectedPlatform, setSelectedPlatform] = useState("");
+  const [selectedPlatform, setSelectedPlatform] = useState("leetcode");
   const [id1, setId1] = useState("");
   const [id2, setId2] = useState("");
   const [submittedIds, setSubmittedIds] = useState<{
