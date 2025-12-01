@@ -2,11 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Codeforces from "../components/codeforces";
+import Leetcode from "../components/leetcode";
 
 function Page() {
-  const [selectedPlatform, setSelectedPlatform] = useState("leetcode");
+  const [selectedPlatform, setSelectedPlatform] = useState("");
   const [id1, setId1] = useState("");
   const [id2, setId2] = useState("");
+  const [submittedIds, setSubmittedIds] = useState<{
+    id1: string;
+    id2: string;
+  } | null>(null);
   const [dark, setDark] = useState(true);
   const router = useRouter();
 
@@ -39,6 +45,11 @@ function Page() {
     setSelectedPlatform(platform);
     setId1("");
     setId2("");
+    setSubmittedIds(null); // Clear comparison results when platform changes
+  };
+
+  const handleCompare = () => {
+    setSubmittedIds({ id1, id2 });
   };
 
   return (
@@ -129,6 +140,7 @@ function Page() {
         </div>
         <div className="mt-6 flex justify-center">
           <button
+            onClick={handleCompare}
             className={`px-8 py-2 text-base font-semibold text-white rounded-lg transition-colors shadow-lg ${
               id1 && id2
                 ? "bg-blue-600 hover:bg-blue-700"
@@ -140,6 +152,28 @@ function Page() {
           </button>
         </div>
       </div>
+
+      {submittedIds && selectedPlatform === "leetcode" && (
+        <div className="flex flex-col md:flex-row w-full items-start justify-center gap-8 pt-8 pb-8">
+          <div className="w-full">
+            <Leetcode userId={submittedIds.id1} showCheck={false} />
+          </div>
+          <div className="w-full">
+            <Leetcode userId={submittedIds.id2} showCheck={false} />
+          </div>
+        </div>
+      )}
+
+      {submittedIds && selectedPlatform === "codeforces" && (
+        <div className="flex flex-col md:flex-row w-full items-start justify-center gap-8 pt-8 pb-8">
+          <div className="w-full">
+            <Codeforces userId={submittedIds.id1} showCheck={false} />
+          </div>
+          <div className="w-full">
+            <Codeforces userId={submittedIds.id2} showCheck={false} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

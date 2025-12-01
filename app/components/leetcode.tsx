@@ -2,18 +2,18 @@ import { useState, useEffect } from "react";
 import Check_lt from "./check_lt";
 import { lt } from "../types";
 
-export default function Leetcode() {
+export default function Leetcode({ userId = "rahul_o15", showCheck = true }) {
   const [data, setData] = useState<lt | null>(null);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://leetcode-stats-api.herokuapp.com/rahul_o15")
+    fetch(`https://leetcode-stats-api.herokuapp.com/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setData(data);
         setLoading(false);
       });
-  }, []);
+  }, [userId]);
 
   const difficultyColors = {
     easy: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
@@ -51,7 +51,7 @@ export default function Leetcode() {
               LeetCode Stats
             </h2>
             <span className="font-mono text-sm text-gray-500 dark:text-gray-400">
-              rahul_o15
+              {userId}
             </span>
           </div>
 
@@ -103,9 +103,11 @@ export default function Leetcode() {
             </div>
           </div>
 
-          <div className="mt-4 text-center">
-            <Check_lt />
-          </div>
+          {showCheck && (
+            <div className="mt-4 text-center">
+              <Check_lt />
+            </div>
+          )}
         </div>
       )}
     </div>

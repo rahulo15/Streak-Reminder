@@ -2,30 +2,40 @@ import { useState, useEffect } from "react";
 import Check_cf from "./check_cf";
 import { cf } from "../types";
 
-export default function Codeforces() {
+export default function Codeforces({ userId = "rahul_o15", showCheck = true }) {
   const [data, setData] = useState<cf | null>(null);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(
-      "https://codeforces.com/api/user.info?handles=rahul_o15&checkHistoricHandles=false"
+      `https://codeforces.com/api/user.info?handles=${userId}&checkHistoricHandles=false`
     )
       .then((res) => res.json())
       .then((data) => {
         setData(data);
         setLoading(false);
       });
-  }, []);
+  }, [userId]);
 
   const getRankColor = (rank: string | undefined) => {
     if (!rank) return "text-gray-500";
-    if (rank.includes("Grandmaster")) return "text-red-500";
-    if (rank.includes("Master")) return "text-yellow-500";
-    return "text-gray-500"; // Default color
+
+    const lowerRank = rank.toLowerCase();
+    if (lowerRank.includes("legendary")) return "text-red-700";
+    if (lowerRank.includes("grandmaster")) return "text-red-500";
+    if (lowerRank.includes("master")) return "text-orange-500";
+    if (lowerRank.includes("candidate")) return "text-purple-500";
+    if (lowerRank.includes("expert")) return "text-blue-500";
+    if (lowerRank.includes("specialist")) return "text-cyan-500";
+    if (lowerRank.includes("pupil")) return "text-green-500";
+    if (lowerRank.includes("newbie")) return "text-gray-500";
+
+    return "text-gray-500"; // Default color for any other case
   };
 
-  const user: any = data?.result[0];
+  const user: any = data?.result?.[0];
   const rankColor = getRankColor(user?.rank);
+  const maxRankColor = getRankColor(user?.maxRank);
 
   return (
     <div className="h-full w-full flex flex-col items-center justify-center p-4">
@@ -78,7 +88,9 @@ export default function Codeforces() {
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                <p className="text-base md:text-lg font-semibold text-gray-800 dark:text-gray-100">
+                <p
+                  className={`text-base md:text-lg font-semibold ${maxRankColor}`}
+                >
                   {user?.maxRank}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -88,9 +100,11 @@ export default function Codeforces() {
             </div>
           </div>
 
-          <div className="mt-4 text-center">
-            <Check_cf />
-          </div>
+          {showCheck && (
+            <div className="mt-4 text-center">
+              <Check_cf />
+            </div>
+          )}
         </div>
       )}
     </div>
