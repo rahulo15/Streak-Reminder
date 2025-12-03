@@ -25,7 +25,7 @@ function Page() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-blue-600 to-blue-100 dark:from-gray-900 dark:to-gray-800 pt-12">
+    <div className="w-full min-h-full">
       <h1 className="text-center text-2xl md:text-4xl pt-4 font-serif dark:text-gray-100 opacity-40">
         Streak-Reminder
       </h1>

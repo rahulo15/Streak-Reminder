@@ -31,6 +31,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
+          suppressHydrationWarning
           className={`${inter.className} w-full min-h-screen bg-gradient-to-b from-blue-600 to-blue-100 dark:from-gray-900 dark:to-gray-800`}
         >
           <ThemeProvider
@@ -57,7 +58,7 @@ export default function RootLayout({
             </SignedOut>
             <SignedIn>
               <Header />
-              <main className="p-4">{children}</main>
+              <main>{children}</main>
             </SignedIn>
           </ThemeProvider>
         </body>

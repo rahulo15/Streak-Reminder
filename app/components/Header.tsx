@@ -8,25 +8,25 @@ export function Header() {
   const router = useRouter();
 
   return (
-    <header className="flex items-center justify-between p-4">
-      <div className="flex items-center gap-4">
+    <header className="flex flex-col items-center justify-between gap-4 p-2 md:flex-row md:p-4">
+      <div className="flex w-full items-center justify-center gap-2 md:w-auto md:justify-start">
         <button
           onClick={() => router.back()}
-          className="dark:bg-gray-800 rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80"
+          className="w-full rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 dark:bg-gray-800 md:w-auto"
         >
           Back
         </button>
         <button
           onClick={() => router.push("/compare")}
-          className="dark:bg-gray-800 rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80"
+          className="w-full rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 dark:bg-gray-800 md:w-auto"
         >
           Compare
         </button>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-center gap-2">
         <ThemeToggle />
         <SignOutButton>
-          <button className="rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/90">
+          <button className="whitespace-nowrap rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/90">
             Sign Out
           </button>
         </SignOutButton>
