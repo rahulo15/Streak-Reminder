@@ -1,11 +1,12 @@
 "use client";
 
 import { SignOutButton, UserButton } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 
 export function Header() {
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <header className="flex flex-col items-center justify-between gap-4 p-2 md:flex-row md:p-4">
@@ -16,12 +17,30 @@ export function Header() {
         >
           Back
         </button>
-        <button
-          onClick={() => router.push("/compare")}
-          className="w-full rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 dark:bg-gray-800 md:w-auto"
-        >
-          Compare
-        </button>
+        {(pathname === "/compare" || pathname === "/modify") && (
+          <button
+            onClick={() => router.push("/")}
+            className="w-full rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 dark:bg-gray-800 md:w-auto"
+          >
+            Home
+          </button>
+        )}
+        {pathname !== "/compare" && (
+          <button
+            onClick={() => router.push("/compare")}
+            className="w-full rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 dark:bg-gray-800 md:w-auto"
+          >
+            Compare
+          </button>
+        )}
+        {pathname !== "/modify" && (
+          <button
+            onClick={() => router.push("/modify")}
+            className="w-full rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 dark:bg-gray-800 md:w-auto"
+          >
+            Modify
+          </button>
+        )}
       </div>
       <div className="flex items-center justify-center gap-2">
         <ThemeToggle />

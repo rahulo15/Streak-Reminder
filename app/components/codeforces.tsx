@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
 import Check_cf from "./check_cf";
-import { cf } from "../types";
+import { cf, CodeForcesProps } from "../types";
 
-export default function Codeforces({ userId = "rahul_o15", showCheck = true }) {
+export default function Codeforces({ userId, showCheck }: CodeForcesProps) {
   const [data, setData] = useState<cf | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
       // Reset states on new userId
       setLoading(true);
       setError(null);
@@ -88,7 +92,7 @@ export default function Codeforces({ userId = "rahul_o15", showCheck = true }) {
               Codeforces Stats
             </h2>
             <span className="font-mono text-sm text-gray-500 dark:text-gray-400">
-              {user?.handle}
+              {userId}
             </span>
           </div>
 

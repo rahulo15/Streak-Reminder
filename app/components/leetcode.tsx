@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
 import Check_lt from "./check_lt";
-import { lt } from "../types";
+import { lt, LeetcodeProps } from "../types";
 
-export default function Leetcode({ userId = "rahul_o15", showCheck = true }) {
+export default function Leetcode({ userId, showCheck }: LeetcodeProps) {
   const [data, setData] = useState<lt | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
       // Reset states on new userId
       setLoading(true);
       setError(null);
