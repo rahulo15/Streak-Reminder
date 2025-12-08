@@ -9,6 +9,7 @@ import {
   SignedOut,
 } from "@clerk/nextjs";
 import { Header } from "./components/Header";
+import AutoLogout from "./components/AutoLogout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,6 +40,7 @@ export default function RootLayout({
             defaultTheme="dark"
             disableTransitionOnChange
           >
+            <AutoLogout />
             <SignedOut>
               <div className="flex h-screen flex-col items-center justify-center bg-background text-center">
                 <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-6xl">
