@@ -1,16 +1,75 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
+import { useUser } from "@clerk/nextjs";
+
+type State = {
+  status: "idle" | "loading" | "submitting" | "connecting" | "verifying";
+  error: string | null;
+  success: string | null;
+  showTelegramVerify: boolean;
+};
+
+type Action =
+  | { type: "START_SUBMIT" | "START_CONNECT" | "START_VERIFY" }
+  | { type: "FETCH_COMPLETE" }
+  | { type: "SUCCESS"; payload: string }
+  | { type: "ERROR"; payload: string }
+  | { type: "SHOW_VERIFY"; payload: string }
+  | { type: "VERIFY_SUCCESS"; payload: string };
+
+const initialState: State = {
+  status: "loading", // Start in loading state for initial fetch
+  error: null,
+  success: null,
+  showTelegramVerify: false,
+};
+
+function uiReducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "START_SUBMIT":
+      return { ...state, status: "submitting", error: null, success: null };
+    case "START_CONNECT":
+      return { ...state, status: "connecting", error: null, success: null };
+    case "START_VERIFY":
+      return { ...state, status: "verifying", error: null, success: null };
+    case "FETCH_COMPLETE":
+      return { ...state, status: "idle" };
+    case "SUCCESS":
+      return { ...state, status: "idle", success: action.payload };
+    case "ERROR":
+      return { ...state, status: "idle", error: action.payload };
+    case "SHOW_VERIFY":
+      return {
+        ...state,
+        status: "idle",
+        showTelegramVerify: true,
+        success: action.payload,
+      };
+    case "VERIFY_SUCCESS":
+      return {
+        ...state,
+        status: "idle",
+        showTelegramVerify: false,
+        success: action.payload,
+      };
+    default:
+      return state;
+  }
+}
 
 function ModifyPage() {
+  const { user } = useUser();
   const [leetcodeId, setLeetcodeId] = useState("");
   const [codeforcesId, setCodeforcesId] = useState("");
-  const [telegramChatId, setTelegramChatId] = useState("");
-  const [telegramBotToken, setTelegramBotToken] = useState("");
-  const [isLoading, setIsLoading] = useState(true); // Start true for initial fetch
-  const [showToken, setShowToken] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [savedHandles, setSavedHandles] = useState({
+    leetcode: "",
+    codeforces: "",
+  });
+  const [telegramChatId, setTelegramChatId] = useState<string | null>(null);
+  const [uiState, dispatch] = useReducer(uiReducer, initialState);
+
+  const refCode = user ? `CONNECT-${user.id.slice(-5)}` : "";
 
   // Fetch existing user data when the component loads
   useEffect(() => {
@@ -22,25 +81,81 @@ function ModifyPage() {
           if (data) {
             setLeetcodeId(data.leetcodeHandle || "");
             setCodeforcesId(data.codeforcesHandle || "");
-            setTelegramChatId(data.telegramChatId || "");
-            setTelegramBotToken(data.telegramBotToken || "");
+            setSavedHandles({
+              leetcode: data.leetcodeHandle || "",
+              codeforces: data.codeforcesHandle || "",
+            });
+            setTelegramChatId(data.telegramChatId || null);
           }
         }
       } catch (err) {
         // It's okay if this fails, the user might not have settings yet.
         console.error("Failed to fetch user settings:", err);
       } finally {
-        setIsLoading(false);
+        dispatch({ type: "FETCH_COMPLETE" });
       }
     };
     fetchUserData();
-  }, []);
+  }, []); // Empty dependency array ensures this runs only on mount and unmount
+
+  const handleOpenBot = async () => {
+    dispatch({ type: "START_CONNECT" });
+    try {
+      // 1. Open the bot in a new tab.
+      window.open(
+        `https://t.me/streak_reminder_o15_bot?start=${refCode}`,
+        "_blank"
+      );
+
+      // 2. Show the verification input and guide the user.
+      dispatch({
+        type: "SHOW_VERIFY",
+        payload:
+          "Bot opened in a new tab. Now click 'Verify Connection' below.",
+      });
+    } catch (err) {
+      dispatch({
+        type: "ERROR",
+        payload:
+          "Could not open the Telegram bot. Please check for pop-up blockers.",
+      });
+    }
+  };
+
+  const handleVerify = async () => {
+    dispatch({ type: "START_VERIFY" });
+    try {
+      const res = await fetch("/api/telegram/manual-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refCode }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(
+          data.error ||
+            "We couldn't find your message yet. Please start the bot and click Verify again."
+        );
+      }
+
+      dispatch({
+        type: "VERIFY_SUCCESS",
+        payload: "Telegram successfully verified!",
+      });
+      // Assume verification was successful and update the state to reflect connection.
+      // A more robust solution might refetch user data or get the ID from the response.
+      // For now, a non-null placeholder will work to update the button text.
+      setTelegramChatId("connected");
+    } catch (err: any) {
+      dispatch({ type: "ERROR", payload: err.message });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-    setSuccess(null);
+    dispatch({ type: "START_SUBMIT" });
 
     //have to encrypt chatid and bottoken
     try {
@@ -50,8 +165,6 @@ function ModifyPage() {
         body: JSON.stringify({
           leetcodeId,
           codeforcesId,
-          telegramChatId,
-          telegramBotToken,
         }),
       });
 
@@ -62,13 +175,22 @@ function ModifyPage() {
         );
       }
 
-      setSuccess("Your settings have been saved successfully!");
+      dispatch({
+        type: "SUCCESS",
+        payload: "Your settings have been saved successfully!",
+      });
+      setSavedHandles({
+        leetcode: leetcodeId,
+        codeforces: codeforcesId,
+      });
     } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+      dispatch({ type: "ERROR", payload: err.message });
     }
   };
+
+  const isDirty =
+    leetcodeId !== savedHandles.leetcode ||
+    codeforcesId !== savedHandles.codeforces;
 
   return (
     <div className="w-full min-h-full">
@@ -77,11 +199,10 @@ function ModifyPage() {
       </h1>
 
       {/* Initial Loading Skeleton */}
-      {isLoading && !success && !error && (
+      {uiState.status === "loading" && (
         <div className="mt-8 w-full max-w-md mx-auto px-4 animate-pulse">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 font-sans">
             <div className="space-y-6">
-              <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
               <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
               <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
               <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
@@ -90,7 +211,7 @@ function ModifyPage() {
         </div>
       )}
 
-      {!isLoading && (
+      {uiState.status !== "loading" && (
         <div className="mt-8 w-full max-w-md mx-auto px-4">
           <form
             onSubmit={handleSubmit}
@@ -130,80 +251,56 @@ function ModifyPage() {
                   className="w-full px-4 py-2 text-gray-900 dark:text-white bg-white/80 dark:bg-gray-700/80 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                 />
               </div>
-
-              <div>
-                <label
-                  htmlFor="telegramChatId"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  Telegram Chat ID
-                </label>
-                <input
-                  id="telegramChatId"
-                  type="text"
-                  placeholder="Enter your Telegram Chat ID"
-                  value={telegramChatId}
-                  onChange={(e) => setTelegramChatId(e.target.value)}
-                  className="w-full px-4 py-2 text-gray-900 dark:text-white bg-white/80 dark:bg-gray-700/80 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="telegramBotToken"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  Telegram Bot Token
-                </label>
-                <div className="relative">
-                  <input
-                    id="telegramBotToken"
-                    type={showToken ? "text" : "password"}
-                    placeholder="Enter your Telegram Bot Token"
-                    value={telegramBotToken}
-                    onChange={(e) => setTelegramBotToken(e.target.value)}
-                    className="w-full pl-4 pr-10 py-2 text-gray-900 dark:text-white bg-white/80 dark:bg-gray-700/80 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowToken(!showToken)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                    aria-label={showToken ? "Hide token" : "Show token"}
-                  >
-                    {showToken ? (
-                      <EyeOffIcon className="h-5 w-5" />
-                    ) : (
-                      <EyeIcon className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
             </div>
 
-            {error && (
-              <p className="mt-4 text-center text-sm text-red-500">{error}</p>
+            {uiState.error && (
+              <p className="mt-4 text-center text-sm text-red-500">
+                {uiState.error}
+              </p>
             )}
-            {success && (
+            {uiState.success && (
               <p className="mt-4 text-center text-sm text-green-500">
-                {success}
+                {uiState.success}
               </p>
             )}
 
-            <div className="mt-8 flex justify-center">
+            <div className="mt-8 flex flex-col justify-center gap-4">
               <button
                 type="submit"
                 className="px-8 py-2 text-base font-semibold text-white rounded-lg transition-colors shadow-lg bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                disabled={
-                  // `isLoading` is now only for submission state after initial load
-                  isLoading ||
-                  (!leetcodeId &&
-                    !codeforcesId &&
-                    !telegramChatId &&
-                    !telegramBotToken)
-                }
+                disabled={!isDirty || uiState.status === "submitting"}
               >
-                {isLoading && (success || error) ? "Saving..." : "Save Changes"}
+                {uiState.status === "submitting" ? "Saving..." : "Save Changes"}
               </button>
+
+              {uiState.showTelegramVerify ? (
+                <button
+                  type="button"
+                  onClick={handleVerify}
+                  disabled={uiState.status === "verifying"}
+                  className="px-8 py-2 text-base font-semibold text-white rounded-lg transition-colors shadow-lg bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {uiState.status === "verifying"
+                    ? "Verifying..."
+                    : "Verify Connection"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleOpenBot}
+                  disabled={
+                    uiState.status === "connecting" ||
+                    (!savedHandles.leetcode && !savedHandles.codeforces)
+                  }
+                  className="px-8 py-2 text-base font-semibold text-white rounded-lg transition-colors shadow-lg bg-sky-500 hover:bg-sky-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {uiState.status === "connecting"
+                    ? "Connecting..."
+                    : telegramChatId
+                    ? "Reconnect Telegram"
+                    : "Connect Telegram"}
+                </button>
+              )}
             </div>
           </form>
         </div>
@@ -211,44 +308,5 @@ function ModifyPage() {
     </div>
   );
 }
-
-const EyeIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    {...props}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M2.036 12.322a1.012 1.012 0 010-.639l4.43-4.43a1.012 1.012 0 011.428 0l4.43 4.43a1.012 1.012 0 010 .639l-4.43 4.43a1.012 1.012 0 01-1.428 0l-4.43-4.43z"
-    />
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-    />
-  </svg>
-);
-
-const EyeOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    {...props}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243l-4.243-4.243"
-    />
-  </svg>
-);
 
 export default ModifyPage;

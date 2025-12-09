@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { leetcodeId, codeforcesId, telegramChatId, telegramBotToken } = body;
+    const { leetcodeId, codeforcesId } = body;
 
     const savedSettings = await prisma.user.upsert({
       where: {
@@ -46,8 +46,6 @@ export async function POST(req: Request) {
       update: {
         leetcodeHandle: leetcodeId,
         codeforcesHandle: codeforcesId,
-        telegramChatId: telegramChatId,
-        telegramBotToken: telegramBotToken,
         email: user.emailAddresses[0].emailAddress,
       },
       create: {
@@ -55,8 +53,6 @@ export async function POST(req: Request) {
         email: user.emailAddresses[0].emailAddress,
         leetcodeHandle: leetcodeId,
         codeforcesHandle: codeforcesId,
-        telegramChatId: telegramChatId,
-        telegramBotToken: telegramBotToken,
       },
     });
 

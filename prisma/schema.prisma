@@ -18,7 +18,6 @@ model User {
   
   // Telegram Info
   telegramChatId    String?
-  telegramBotToken  String? // We will encrypt this later in code
   
   // Tracking
   lastSolvedDate    DateTime? // To avoid sending duplicate alerts
