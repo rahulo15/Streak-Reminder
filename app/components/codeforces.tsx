@@ -1,20 +1,43 @@
 import { useState, useEffect } from "react";
 import Check_cf from "./check_cf";
-import { cf } from "../types";
+import { cf, CodeForcesProps } from "../types";
 
-export default function Codeforces({ userId = "rahul_o15", showCheck = true }) {
+export default function Codeforces({ userId, showCheck }: CodeForcesProps) {
   const [data, setData] = useState<cf | null>(null);
-  const [isLoading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(
-      `https://codeforces.com/api/user.info?handles=${userId}&checkHistoricHandles=false`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
+    const fetchData = async () => {
+      if (!userId) {
         setLoading(false);
-      });
+        return;
+      }
+      // Reset states on new userId
+      setLoading(true);
+      setError(null);
+      setData(null);
+
+      try {
+        const res = await fetch(
+          `https://codeforces.com/api/user.info?handles=${userId}&checkHistoricHandles=false`
+        );
+        if (!res.ok) {
+          throw new Error(`API request failed with status ${res.status}`);
+        }
+        const jsonData: cf = await res.json();
+        if (jsonData.status.toLowerCase() === "failed") {
+          throw new Error(`User '${userId}' not found.`);
+        }
+        setData(jsonData);
+      } catch (e: any) {
+        setError(e.message || "An unknown error occurred.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [userId]);
 
   const getRankColor = (rank: string | undefined) => {
@@ -39,7 +62,7 @@ export default function Codeforces({ userId = "rahul_o15", showCheck = true }) {
 
   return (
     <div className="h-full w-full flex flex-col items-center justify-center p-4">
-      {isLoading ? (
+      {loading ? (
         // Skeleton Loader
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 w-full max-w-lg mx-auto font-sans animate-pulse">
           <div className="flex items-center justify-between mb-4">
@@ -53,6 +76,14 @@ export default function Codeforces({ userId = "rahul_o15", showCheck = true }) {
           <div className="h-20 bg-gray-50 dark:bg-gray-700 rounded-lg"></div>
           <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mt-4"></div>
         </div>
+      ) : error ? (
+        // Error Message
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 w-full max-w-lg mx-auto font-sans min-h-80 flex flex-col justify-center items-center">
+          <h2 className="text-xl font-bold text-red-500 mb-2">
+            Failed to load data
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">{error}</p>
+        </div>
       ) : (
         // Data Card
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 w-full max-w-lg mx-auto font-sans min-h-80 flex flex-col justify-between">
@@ -61,7 +92,7 @@ export default function Codeforces({ userId = "rahul_o15", showCheck = true }) {
               Codeforces Stats
             </h2>
             <span className="font-mono text-sm text-gray-500 dark:text-gray-400">
-              {user?.handle}
+              {userId}
             </span>
           </div>
 

@@ -3,8 +3,10 @@ import { cf_check } from "../types";
 
 export default function Check_cf() {
   const [data, setData] = useState<cf_check | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const check = (time: number) => {
+  const isToday = (time: number) => {
     const timestampInMilliseconds = time * 1000;
     const date = new Date(timestampInMilliseconds);
 
@@ -14,17 +16,42 @@ export default function Check_cf() {
   };
 
   useEffect(() => {
-    fetch(
-      "https://codeforces.com/api/user.status?handle=rahul_o15&from=1&count=1"
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
-      });
+    const fetchData = async () => {
+      try {
+        const res = await fetch(
+          "https://codeforces.com/api/user.status?handle=rahul_o15&from=1&count=1"
+        );
+        if (!res.ok) {
+          throw new Error(`API failed with status: ${res.status}`);
+        }
+        const jsonData: cf_check = await res.json();
+        if (
+          jsonData.status.toLowerCase() !== "ok" ||
+          !jsonData.result?.length
+        ) {
+          throw new Error("User not found or no submissions.");
+        }
+        setData(jsonData);
+      } catch (e: any) {
+        setError(e.message || "An unknown error occurred.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  if (!data || data === null)
-    return <div className="p-3 text-center">Unable to fetch!</div>;
+  if (loading) {
+    return <div className="p-3 text-center">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="p-3 text-center text-red-500">Error: {error}</div>;
+  }
+
+  if (!data) return null; // Should not happen if loading and error are handled
+
   const time = Number(data.result[0].creationTimeSeconds);
   const lastSubmissionDate = new Date(time * 1000);
   const day = String(lastSubmissionDate.getDate()).padStart(2, "0");
@@ -38,7 +65,7 @@ export default function Check_cf() {
 
   return (
     <div className="p-3 text-center">
-      {check(time) ? "Streak maintained" : lastSubmittedString}
+      {isToday(time) ? "Streak maintained" : lastSubmittedString}
     </div>
   );
 }

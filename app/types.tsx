@@ -54,3 +54,13 @@ export type cf_check = {
     }
   ];
 };
+
+export type CodeForcesProps = {
+  userId: string | null;
+  showCheck?: boolean;
+};
+
+export type LeetcodeProps = {
+  userId: string | null;
+  showCheck?: boolean;
+};
