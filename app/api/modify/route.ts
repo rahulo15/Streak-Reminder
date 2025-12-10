@@ -3,6 +3,7 @@ import { prisma } from "../../lib/db";
 import { NextResponse } from "next/server";
 
 // GET: Fetch the user's current settings
+export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   try {
     const { userId } = await auth();
