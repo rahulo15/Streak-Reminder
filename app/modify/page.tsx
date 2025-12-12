@@ -285,21 +285,32 @@ function ModifyPage() {
                     : "Verify Connection"}
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={handleOpenBot}
-                  disabled={
-                    uiState.status === "connecting" ||
-                    (!savedHandles.leetcode && !savedHandles.codeforces)
-                  }
-                  className="px-8 py-2 text-base font-semibold text-white rounded-lg transition-colors shadow-lg bg-sky-500 hover:bg-sky-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  {uiState.status === "connecting"
-                    ? "Connecting..."
-                    : telegramChatId
-                    ? "Reconnect Telegram"
-                    : "Connect Telegram"}
-                </button>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={handleOpenBot}
+                    disabled={
+                      uiState.status === "connecting" ||
+                      (!savedHandles.leetcode && !savedHandles.codeforces)
+                    }
+                    className="px-8 py-2 text-base font-semibold text-white rounded-lg transition-colors shadow-lg bg-sky-500 hover:bg-sky-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    {uiState.status === "connecting"
+                      ? "Connecting..."
+                      : telegramChatId
+                      ? "Reconnect Telegram"
+                      : "Connect Telegram"}
+                  </button>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 text-center px-2">
+                    Clicking this opens the bot in a new tab. Send the
+                    pre-filled{" "}
+                    <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">
+                      /start
+                    </code>{" "}
+                    command, then return here and click &apos;Verify
+                    Connection&apos; to link your account.
+                  </p>
+                </div>
               )}
             </div>
           </form>
