@@ -1,6 +1,6 @@
 "use client";
 
-import { useClerk } from "@clerk/nextjs";
+import { useClerk, useAuth } from "@clerk/nextjs";
 import { useEffect, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -9,17 +9,19 @@ const WARNING_DURATION = 30 * 1000; // 30 seconds before actual logout to show w
 
 export default function AutoLogout() {
   const { signOut } = useClerk();
+  const { isSignedIn } = useAuth();
   const router = useRouter();
 
   const [showWarningPopup, setShowWarningPopup] = useState(false);
   const [countdown, setCountdown] = useState(WARNING_DURATION / 1000); // in seconds
 
-  const handleLogout = useCallback(async () => {
-    await signOut(); // Perform Clerk sign out
-    router.push("/"); // Redirect to home or login page
+  const handleLogout = useCallback(() => {
+    signOut(() => router.push("/"));
   }, [signOut, router]);
 
   useEffect(() => {
+    if (!isSignedIn) return;
+
     let warningTimer: NodeJS.Timeout;
     let logoutTimer: NodeJS.Timeout;
     let countdownInterval: NodeJS.Timeout;
@@ -84,9 +86,9 @@ export default function AutoLogout() {
         window.removeEventListener(event, resetTimers);
       });
     };
-  }, [handleLogout]); // handleLogout is a dependency because it's used inside useEffect.
+  }, [handleLogout, isSignedIn]); // handleLogout is a dependency because it's used inside useEffect.
 
-  return showWarningPopup ? (
+  return isSignedIn && showWarningPopup ? (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl text-center">
         <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
