@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Leetcode from "./components/leetcode";
-import Codeforces from "./components/codeforces";
+import Leetcode from "../components/leetcode";
+import Codeforces from "../components/codeforces";
 
 export default function Page() {
   const [leetcodeId, setLeetcodeId] = useState<string | null>(null);
