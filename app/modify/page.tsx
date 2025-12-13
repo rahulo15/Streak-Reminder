@@ -60,15 +60,17 @@ function uiReducer(state: State, action: Action): State {
 
 function ModifyPage() {
   const { user } = useUser();
-  const [leetcodeId, setLeetcodeId] = useState("");
-  const [codeforcesId, setCodeforcesId] = useState("");
-  const [savedHandles, setSavedHandles] = useState({
-    leetcode: "",
-    codeforces: "",
+  const [formData, setFormData] = useState({
+    leetcodeId: "",
+    codeforcesId: "",
+    remindersEnabled: true,
+  });
+  const [savedData, setSavedData] = useState({
+    leetcodeId: "",
+    codeforcesId: "",
     remindersEnabled: true,
   });
   const [telegramChatId, setTelegramChatId] = useState<string | null>(null);
-  const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [uiState, dispatch] = useReducer(uiReducer, initialState);
 
   const refCode = user ? `CONNECT-${user.id.slice(-5)}` : "";
@@ -81,22 +83,29 @@ function ModifyPage() {
         if (response.ok) {
           const data = await response.json();
           if (data) {
-            setLeetcodeId(data.leetcodeHandle || "");
-            setCodeforcesId(data.codeforcesHandle || "");
-            setSavedHandles({
-              leetcode: data.leetcodeHandle || "",
-              codeforces: data.codeforcesHandle || "",
+            const loadedData = {
+              leetcodeId: data.leetcodeHandle || "",
+              codeforcesId: data.codeforcesHandle || "",
               remindersEnabled: data.remindersEnabled ?? true,
-            });
+            };
+            setFormData(loadedData);
+            setSavedData(loadedData);
             setTelegramChatId(data.telegramChatId || null);
-            setRemindersEnabled(data.remindersEnabled ?? true);
           }
+        } else if (response.status !== 404) {
+          // A 404 is expected for new users, other errors should be reported.
+          throw new Error(`Failed to fetch settings: ${response.statusText}`);
         }
-      } catch (err) {
-        // It's okay if this fails, the user might not have settings yet.
-        console.error("Failed to fetch user settings:", err);
-      } finally {
         dispatch({ type: "FETCH_COMPLETE" });
+      } catch (err: unknown) {
+        console.error("Failed to fetch user settings:", err);
+        dispatch({
+          type: "ERROR",
+          payload:
+            err instanceof Error
+              ? err.message
+              : "Could not load settings. Please refresh the page.",
+        });
       }
     };
     fetchUserData();
@@ -152,8 +161,11 @@ function ModifyPage() {
       // A more robust solution might refetch user data or get the ID from the response.
       // For now, a non-null placeholder will work to update the button text.
       setTelegramChatId("connected");
-    } catch (err: any) {
-      dispatch({ type: "ERROR", payload: err.message });
+    } catch (err: unknown) {
+      dispatch({
+        type: "ERROR",
+        payload: err instanceof Error ? err.message : "Verification failed",
+      });
     }
   };
 
@@ -166,11 +178,7 @@ function ModifyPage() {
       const response = await fetch("/api/modify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          leetcodeId,
-          codeforcesId,
-          remindersEnabled,
-        }),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
@@ -184,20 +192,19 @@ function ModifyPage() {
         type: "SUCCESS",
         payload: "Your settings have been saved successfully!",
       });
-      setSavedHandles({
-        leetcode: leetcodeId,
-        codeforces: codeforcesId,
-        remindersEnabled,
+      setSavedData(formData);
+    } catch (err: unknown) {
+      dispatch({
+        type: "ERROR",
+        payload: err instanceof Error ? err.message : "An error occurred",
       });
-    } catch (err: any) {
-      dispatch({ type: "ERROR", payload: err.message });
     }
   };
 
   const isDirty =
-    leetcodeId !== savedHandles.leetcode ||
-    codeforcesId !== savedHandles.codeforces ||
-    remindersEnabled !== savedHandles.remindersEnabled;
+    formData.leetcodeId !== savedData.leetcodeId ||
+    formData.codeforcesId !== savedData.codeforcesId ||
+    formData.remindersEnabled !== savedData.remindersEnabled;
 
   return (
     <div className="w-full min-h-full">
@@ -206,7 +213,7 @@ function ModifyPage() {
       </h1>
 
       {/* Initial Loading Skeleton */}
-      {uiState.status === "loading" && (
+      {uiState.status === "loading" ? (
         <div className="mt-8 w-full max-w-md mx-auto px-4 animate-pulse">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 font-sans">
             <div className="space-y-6">
@@ -216,9 +223,7 @@ function ModifyPage() {
             </div>
           </div>
         </div>
-      )}
-
-      {uiState.status !== "loading" && (
+      ) : (
         <div className="mt-8 w-full max-w-md mx-auto px-4">
           <form
             onSubmit={handleSubmit}
@@ -236,8 +241,10 @@ function ModifyPage() {
                   id="leetcodeId"
                   type="text"
                   placeholder="Enter your LeetCode ID"
-                  value={leetcodeId}
-                  onChange={(e) => setLeetcodeId(e.target.value)}
+                  value={formData.leetcodeId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, leetcodeId: e.target.value })
+                  }
                   className="w-full px-4 py-2 text-gray-900 dark:text-white bg-white/80 dark:bg-gray-700/80 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                 />
               </div>
@@ -253,8 +260,10 @@ function ModifyPage() {
                   id="codeforcesId"
                   type="text"
                   placeholder="Enter your Codeforces ID"
-                  value={codeforcesId}
-                  onChange={(e) => setCodeforcesId(e.target.value)}
+                  value={formData.codeforcesId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, codeforcesId: e.target.value })
+                  }
                   className="w-full px-4 py-2 text-gray-900 dark:text-white bg-white/80 dark:bg-gray-700/80 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                 />
               </div>
@@ -263,8 +272,13 @@ function ModifyPage() {
                 <input
                   id="enable-reminders"
                   type="checkbox"
-                  checked={remindersEnabled}
-                  onChange={(e) => setRemindersEnabled(e.target.checked)}
+                  checked={formData.remindersEnabled}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      remindersEnabled: e.target.checked,
+                    })
+                  }
                   className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
                 />
                 <label
@@ -277,7 +291,7 @@ function ModifyPage() {
             </div>
 
             {uiState.error && (
-              <p className="mt-4 text-center text-sm text-red-500">
+              <p className="mt-4 text-center text-sm text-red-500 dark:text-red-400">
                 {uiState.error}
               </p>
             )}
@@ -314,7 +328,7 @@ function ModifyPage() {
                     onClick={handleOpenBot}
                     disabled={
                       uiState.status === "connecting" ||
-                      (!savedHandles.leetcode && !savedHandles.codeforces)
+                      (!savedData.leetcodeId && !savedData.codeforcesId)
                     }
                     className="px-8 py-2 text-base font-semibold text-white rounded-lg transition-colors shadow-lg bg-sky-500 hover:bg-sky-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
