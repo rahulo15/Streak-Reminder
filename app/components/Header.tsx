@@ -49,7 +49,9 @@ export function Header() {
             Sign Out
           </button>
         </SignOutButton>
-        <UserButton afterSignOutUrl="/" />
+        <div className="pointer-events-none">
+          <UserButton />
+        </div>
       </div>
     </header>
   );

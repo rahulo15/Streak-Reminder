@@ -33,11 +33,17 @@ export default function Page() {
 
   return (
     <>
-      <h1 className="flex items-center justify-center text-3xl md:py-12 md:text-5xl font-serif dark:text-gray-100">
+      <h1 className="flex items-center justify-center text-3xl md:py-12 pt-4 pb-4 md:text-5xl font-serif dark:text-gray-100">
         Streak-Reminder
       </h1>
       {isLoading ? (
-        <div className="text-center dark:text-gray-400">Loading data...</div>
+        <div className="flex space-x-2 justify-center items-center pt-20">
+          <div className="h-5 w-5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.4s]"></div>
+          <div className="h-5 w-5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+          <div className="h-5 w-5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.2s]"></div>
+          <div className="h-5 w-5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.1s]"></div>
+          <div className="h-5 w-5 bg-blue-400 rounded-full animate-bounce"></div>
+        </div>
       ) : (
         <>
           {leetcodeId || codeforcesId ? (
