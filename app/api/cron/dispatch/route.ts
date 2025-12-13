@@ -17,7 +17,10 @@ export async function GET(req: Request) {
 
   // 1. Get all active users
   const users = await prisma.user.findMany({
-    where: { telegramChatId: { not: null } }, // Only users with Telegram connected
+    where: {
+      telegramChatId: { not: null }, // Only users with Telegram connected
+      remindersEnabled: true,
+    },
     select: { id: true },
   });
   console.log(
