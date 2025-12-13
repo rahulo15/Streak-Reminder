@@ -65,8 +65,10 @@ function ModifyPage() {
   const [savedHandles, setSavedHandles] = useState({
     leetcode: "",
     codeforces: "",
+    remindersEnabled: true,
   });
   const [telegramChatId, setTelegramChatId] = useState<string | null>(null);
+  const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [uiState, dispatch] = useReducer(uiReducer, initialState);
 
   const refCode = user ? `CONNECT-${user.id.slice(-5)}` : "";
@@ -84,8 +86,10 @@ function ModifyPage() {
             setSavedHandles({
               leetcode: data.leetcodeHandle || "",
               codeforces: data.codeforcesHandle || "",
+              remindersEnabled: data.remindersEnabled ?? true,
             });
             setTelegramChatId(data.telegramChatId || null);
+            setRemindersEnabled(data.remindersEnabled ?? true);
           }
         }
       } catch (err) {
@@ -165,6 +169,7 @@ function ModifyPage() {
         body: JSON.stringify({
           leetcodeId,
           codeforcesId,
+          remindersEnabled,
         }),
       });
 
@@ -182,6 +187,7 @@ function ModifyPage() {
       setSavedHandles({
         leetcode: leetcodeId,
         codeforces: codeforcesId,
+        remindersEnabled,
       });
     } catch (err: any) {
       dispatch({ type: "ERROR", payload: err.message });
@@ -190,7 +196,8 @@ function ModifyPage() {
 
   const isDirty =
     leetcodeId !== savedHandles.leetcode ||
-    codeforcesId !== savedHandles.codeforces;
+    codeforcesId !== savedHandles.codeforces ||
+    remindersEnabled !== savedHandles.remindersEnabled;
 
   return (
     <div className="w-full min-h-full">
@@ -250,6 +257,22 @@ function ModifyPage() {
                   onChange={(e) => setCodeforcesId(e.target.value)}
                   className="w-full px-4 py-2 text-gray-900 dark:text-white bg-white/80 dark:bg-gray-700/80 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                 />
+              </div>
+
+              <div className="flex items-center gap-3 w-full px-4 py-2 bg-white/80 dark:bg-gray-700/80 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors">
+                <input
+                  id="enable-reminders"
+                  type="checkbox"
+                  checked={remindersEnabled}
+                  onChange={(e) => setRemindersEnabled(e.target.checked)}
+                  className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                />
+                <label
+                  htmlFor="enable-reminders"
+                  className="text-gray-700 dark:text-gray-300 font-medium cursor-pointer flex-grow"
+                >
+                  Enable Reminders
+                </label>
               </div>
             </div>
 

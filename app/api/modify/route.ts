@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { leetcodeId, codeforcesId } = body;
+    const { leetcodeId, codeforcesId, remindersEnabled } = body;
 
     const savedSettings = await prisma.user.upsert({
       where: {
@@ -48,12 +48,14 @@ export async function POST(req: Request) {
         leetcodeHandle: leetcodeId,
         codeforcesHandle: codeforcesId,
         email: user.emailAddresses[0].emailAddress,
+        remindersEnabled: remindersEnabled,
       },
       create: {
         clerkUserId: userId,
         email: user.emailAddresses[0].emailAddress,
         leetcodeHandle: leetcodeId,
         codeforcesHandle: codeforcesId,
+        remindersEnabled: remindersEnabled,
       },
     });
 
