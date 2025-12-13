@@ -3,6 +3,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 // Define Public Routes (The "Safe List")
 // We do NOT include "/home" here, so it becomes protected by default.
 const isPublicRoute = createRouteMatcher([
+  "/",
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/api/telegram(.*)", // Keep your bots public
