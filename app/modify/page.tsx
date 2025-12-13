@@ -207,7 +207,7 @@ function ModifyPage() {
     formData.remindersEnabled !== savedData.remindersEnabled;
 
   return (
-    <div className="w-full min-h-full">
+    <div className="w-full min-h-full pb-6">
       <h1 className="text-center text-2xl md:text-4xl pt-4 font-serif dark:text-gray-100 opacity-40">
         Modify User Handles
       </h1>
@@ -215,7 +215,7 @@ function ModifyPage() {
       {/* Initial Loading Skeleton */}
       {uiState.status === "loading" ? (
         <div className="mt-8 w-full max-w-md mx-auto px-4 animate-pulse">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 font-sans">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 font-sans">
             <div className="space-y-6">
               <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
               <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
@@ -227,7 +227,7 @@ function ModifyPage() {
         <div className="mt-8 w-full max-w-md mx-auto px-4">
           <form
             onSubmit={handleSubmit}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 font-sans"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 font-sans"
           >
             <div className="space-y-6">
               <div>

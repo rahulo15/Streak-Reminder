@@ -11,15 +11,17 @@ export function Header() {
   return (
     <header className="flex flex-col items-center justify-between gap-4 p-2 md:flex-row md:p-4">
       <div className="flex w-full items-center justify-center gap-2 md:w-auto md:justify-start">
-        <button
-          onClick={() => router.back()}
-          className="w-full rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 dark:bg-gray-800 md:w-auto"
-        >
-          Back
-        </button>
+        {pathname !== "/home" && (
+          <button
+            onClick={() => router.back()}
+            className="w-full rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 dark:bg-gray-800 md:w-auto"
+          >
+            Back
+          </button>
+        )}
         {(pathname === "/compare" || pathname === "/modify") && (
           <button
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/home")}
             className="w-full rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 dark:bg-gray-800 md:w-auto"
           >
             Home
@@ -49,7 +51,9 @@ export function Header() {
             Sign Out
           </button>
         </SignOutButton>
-        <UserButton afterSignOutUrl="/" />
+        <div className="pointer-events-none">
+          <UserButton />
+        </div>
       </div>
     </header>
   );

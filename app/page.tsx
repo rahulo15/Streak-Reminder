@@ -1,66 +1,41 @@
-"use client";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { SignInButton } from "@clerk/nextjs";
+import Image from "next/image";
 
-import React, { useEffect, useState } from "react";
-import Leetcode from "./components/leetcode";
-import Codeforces from "./components/codeforces";
+export default async function LandingPage() {
+  const { userId } = await auth();
 
-export default function Page() {
-  const [leetcodeId, setLeetcodeId] = useState<string | null>(null);
-  const [codeforcesId, setCodeforcesId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // 1. If user is already logged in, send them to the Dashboard
+  if (userId) {
+    redirect("/home");
+  }
 
-  useEffect(() => {
-    const fetchUserHandles = async () => {
-      try {
-        const response = await fetch("/api/modify"); // Re-using the GET endpoint
-        if (response.ok) {
-          const data = await response.json();
-          if (data) {
-            setLeetcodeId(data.leetcodeHandle);
-            setCodeforcesId(data.codeforcesHandle);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch user handles:", error);
-        // It's okay if this fails, the user might not have settings yet.
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUserHandles();
-  }, []);
-
+  // 2. If not logged in, show the Landing Page (Moved from layout.tsx)
   return (
-    <>
-      <h1 className="flex items-center justify-center text-3xl md:py-12 md:text-5xl font-serif dark:text-gray-100">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
+      <div className="mb-6 relative w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:mb-8">
+        <Image
+          src="/icon.svg"
+          alt="Streak Reminder Logo"
+          fill
+          className="object-contain drop-shadow-2xl"
+          priority
+        />
+      </div>
+      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white drop-shadow-md">
         Streak-Reminder
       </h1>
-      {isLoading ? (
-        <div className="text-center dark:text-gray-400">Loading data...</div>
-      ) : (
-        <>
-          {leetcodeId || codeforcesId ? (
-            <div className="flex flex-col md:flex-row w-full items-start justify-center pb-8">
-              {leetcodeId && (
-                <div className="w-full">
-                  <Leetcode userId={leetcodeId} />
-                </div>
-              )}
-              {codeforcesId && (
-                <div className="w-full">
-                  <Codeforces userId={codeforcesId} />
-                </div>
-              )}
-            </div>
-          ) : (
-            <p className="mt-8 text-center text-gray-500 dark:text-gray-400">
-              You can add LeetCode and Codeforces IDs by clicking on the Modify
-              button on the top.
-            </p>
-          )}
-        </>
-      )}
-    </>
+      <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-blue-50 dark:text-gray-300 max-w-xs sm:max-w-2xl drop-shadow-sm px-2">
+        Stay consistent and build your DSA/CP streak.
+      </p>
+      <div className="mt-8 sm:mt-10">
+        <SignInButton mode="modal">
+          <button className="rounded-full bg-white px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-bold text-blue-600 shadow-xl transition-all hover:bg-blue-50 hover:scale-105 hover:shadow-2xl dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500">
+            Sign In to Get Started
+          </button>
+        </SignInButton>
+      </div>
+    </div>
   );
 }

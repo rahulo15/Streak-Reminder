@@ -108,8 +108,12 @@ export default function CompareTab({
 
   if (loading)
     return (
-      <div className="flex justify-center items-center pt-20">
-        <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-blue-400 dark:border-blue-500"></div>
+      <div className="flex space-x-2 justify-center items-center pt-20">
+        <div className="h-5 w-5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.4s]"></div>
+        <div className="h-5 w-5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+        <div className="h-5 w-5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.2s]"></div>
+        <div className="h-5 w-5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.1s]"></div>
+        <div className="h-5 w-5 bg-blue-400 rounded-full animate-bounce"></div>
       </div>
     );
 
