@@ -83,14 +83,17 @@ function ModifyPage() {
         if (response.ok) {
           const data = await response.json();
           if (data) {
+            const telegramChatId = data.telegramChatId || null;
             const loadedData = {
               leetcodeId: data.leetcodeHandle || "",
               codeforcesId: data.codeforcesHandle || "",
-              remindersEnabled: data.remindersEnabled ?? true,
+              remindersEnabled: telegramChatId
+                ? data.remindersEnabled ?? true
+                : false,
             };
             setFormData(loadedData);
             setSavedData(loadedData);
-            setTelegramChatId(data.telegramChatId || null);
+            setTelegramChatId(telegramChatId);
           }
         } else if (response.status !== 404) {
           // A 404 is expected for new users, other errors should be reported.
@@ -268,25 +271,33 @@ function ModifyPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-3 w-full px-4 py-2 bg-white/80 dark:bg-gray-700/80 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors">
-                <input
-                  id="enable-reminders"
-                  type="checkbox"
-                  checked={formData.remindersEnabled}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      remindersEnabled: e.target.checked,
-                    })
-                  }
-                  className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
-                />
-                <label
-                  htmlFor="enable-reminders"
-                  className="text-gray-700 dark:text-gray-300 font-medium cursor-pointer flex-grow"
-                >
-                  Enable Reminders
-                </label>
+              <div>
+                <div className="flex items-center gap-3 w-full px-4 py-2 bg-white/80 dark:bg-gray-700/80 border border-gray-300 dark:border-gray-600 rounded-lg transition-colors">
+                  <input
+                    id="enable-reminders"
+                    type="checkbox"
+                    checked={formData.remindersEnabled}
+                    disabled={!telegramChatId}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        remindersEnabled: e.target.checked,
+                      })
+                    }
+                    className="peer h-5 w-5 cursor-pointer rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                  <label
+                    htmlFor="enable-reminders"
+                    className="flex-grow cursor-pointer font-medium text-gray-700 dark:text-gray-300 peer-disabled:cursor-not-allowed peer-disabled:text-gray-400 dark:peer-disabled:text-gray-500"
+                  >
+                    Enable Reminders
+                  </label>
+                </div>
+                {!telegramChatId && (
+                  <p className="mt-2 text-sm text-red-500 dark:text-red-400">
+                    Connect Telegram to enable reminders
+                  </p>
+                )}
               </div>
             </div>
 

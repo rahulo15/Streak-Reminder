@@ -23,5 +23,5 @@ model User {
   lastSolvedDate    DateTime? // To avoid sending duplicate alerts
   createdAt         DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  remindersEnabled  Boolean  @default(true)
+  remindersEnabled  Boolean  @default(false)
 }
