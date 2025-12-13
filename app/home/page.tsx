@@ -50,12 +50,12 @@ export default function Page() {
             <div className="flex flex-col md:flex-row w-full items-start justify-center pb-8">
               {leetcodeId && (
                 <div className="w-full">
-                  <Leetcode userId={leetcodeId} />
+                  <Leetcode userId={leetcodeId} showCheck={true} />
                 </div>
               )}
               {codeforcesId && (
                 <div className="w-full">
-                  <Codeforces userId={codeforcesId} />
+                  <Codeforces userId={codeforcesId} showCheck={true} />
                 </div>
               )}
             </div>
