@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { cf_check } from "../types";
 
-export default function Check_cf() {
+export default function Check_cf({ userId }: { userId: string }) {
   const [data, setData] = useState<cf_check | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,9 +17,10 @@ export default function Check_cf() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const res = await fetch(
-          "https://codeforces.com/api/user.status?handle=rahul_o15&from=1&count=1"
+          `https://codeforces.com/api/user.status?handle=${userId}&from=1&count=1`
         );
         if (!res.ok) {
           throw new Error(`API failed with status: ${res.status}`);
@@ -40,7 +41,7 @@ export default function Check_cf() {
     };
 
     fetchData();
-  }, []);
+  }, [userId]);
 
   if (loading) {
     return <div className="p-3 text-center">Loading...</div>;

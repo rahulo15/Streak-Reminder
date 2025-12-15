@@ -133,7 +133,7 @@ export default function Codeforces({ userId, showCheck }: CodeForcesProps) {
 
           {showCheck && (
             <div className="mt-4 text-center">
-              <Check_cf />
+              <Check_cf userId={userId ?? ""} />
             </div>
           )}
         </div>

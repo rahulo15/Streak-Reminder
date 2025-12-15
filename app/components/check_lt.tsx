@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { lt } from "../types";
 
-export default function Check_lt() {
+export default function Check_lt({ userId }: { userId: string }) {
   const [data, setData] = useState<lt | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,9 +17,10 @@ export default function Check_lt() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const res = await fetch(
-          "https://leetcode-stats-api.herokuapp.com/rahul_o15"
+          `https://leetcode-stats-api.herokuapp.com/${userId}`
         );
         if (!res.ok) {
           throw new Error(`API failed with status: ${res.status}`);
@@ -37,7 +38,7 @@ export default function Check_lt() {
     };
 
     fetchData();
-  }, []);
+  }, [userId]);
 
   if (loading) {
     return <div className="p-3 text-center">Loading...</div>;
