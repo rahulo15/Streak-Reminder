@@ -137,7 +137,7 @@ export default function Leetcode({ userId, showCheck }: LeetcodeProps) {
 
           {showCheck && (
             <div className="mt-4 text-center">
-              <Check_lt />
+              <Check_lt userId={userId ?? ""} />
             </div>
           )}
         </div>
